@@ -105,11 +105,26 @@ namespace ofxIlda {
             s << "stats.pointCountOrig : " << stats.pointCountOrig << endl;
             s << "stats.pointCountProcessed : " << stats.pointCountProcessed << endl;
             
+            s << endl;
+            
+            s << "orig polys size : " << origPolys.size() << endl;
+            s << "processed polys size : " << processedPolys.size() << endl;
+            s << "final point size : " << points.size() << endl;
+
             return s.str();
         }
         
         //--------------------------------------------------------------
         void update() {
+            int polyCount = 0;
+            for (int i=0; i<origPolys.size(); ++i) {
+                if (origPolys[i].size() > 0) {
+                    polyCount++;
+                }
+            }
+            polyProcessor.params.effectiveTargetPointCount
+            = max<int>(2, polyProcessor.params.targetPointCount - 2 * (params.output.endCount + params.output.blankCount) * polyCount);
+            
             polyProcessor.update(origPolys, processedPolys);
 			
             // get stats
@@ -318,6 +333,8 @@ namespace ofxIlda {
         //--------------------------------------------------------------
         void updateFinalPoints() {
             points.clear();
+            
+            ofPoint globalEndPoint;
             for(int i=0; i<processedPolys.size(); i++) {
                 ofPolyline &poly = processedPolys[i];
                 ofFloatColor &pcolor = processedPolys[i].color;
@@ -352,6 +369,21 @@ namespace ofxIlda {
                         points.push_back( Point(endPoint, ofFloatColor(0, 0, 0, 0) ));
                     }
                     
+                    globalEndPoint = endPoint;
+                }
+            }
+            
+            // force resize point size
+            if (points.size() > polyProcessor.params.targetPointCount) {
+                if (points.size() - polyProcessor.params.targetPointCount < (params.output.blankCount - 1)) {
+                    points.resize(polyProcessor.params.targetPointCount);
+                } else {
+                    // ToDo
+                }
+            } else if (points.size() < polyProcessor.params.targetPointCount) {
+                int diff = polyProcessor.params.targetPointCount - points.size();
+                for(int n=0; n<diff; n++) {
+                    points.push_back( Point(globalEndPoint, ofFloatColor(0, 0, 0, 0) ));
                 }
             }
         }

@@ -19,6 +19,7 @@ namespace ofxIlda {
             bool collapse;  // (not implemented yet)
             int targetPointCount;   // how many points in total should ALL paths in this frame be resampled to (zero to ignore)
             float spacing;  // desired spacing between points. Set automatically by targetPointCount, or set manually. (zero to ignore)
+            int effectiveTargetPointCount;   // internal parameter
         } params;
         
         
@@ -29,6 +30,7 @@ namespace ofxIlda {
             params.optimizeTolerance = 0;
             params.collapse = 0;
             params.targetPointCount = 500;
+            params.effectiveTargetPointCount = 500;
             params.spacing = 0;
         }
         
@@ -40,6 +42,7 @@ namespace ofxIlda {
             s << "optimizeTolerance : " << params.optimizeTolerance << endl;
             s << "collapse : " << params.collapse << endl;
             s << "targetPointCount : " << params.targetPointCount << endl;
+            s << "eTargetPointCount : " << params.effectiveTargetPointCount << endl;
             s << "spacing : " << params.spacing << endl;
             return s.str();
         }
@@ -58,7 +61,7 @@ namespace ofxIlda {
                     if(params.optimizeTolerance > 0) processedPolys[i].simplify(params.optimizeTolerance);
                     
                     // calculate total length (needed for auto spacing calculation)
-                    if(params.targetPointCount > 0) {
+                    if(params.effectiveTargetPointCount > 0) {
                         float l = processedPolys[i].getPerimeter();
                         totalLength += l;
                         pathLengths.push_back(l);
@@ -70,8 +73,8 @@ namespace ofxIlda {
             
             
             // calculate spacing based on desired total number of points
-            if(params.targetPointCount > 0 && totalLength > 0) {
-                params.spacing = totalLength / params.targetPointCount;
+            if(params.effectiveTargetPointCount > 0 && totalLength > 0) {
+                params.spacing = totalLength / params.effectiveTargetPointCount;
             }
             
             
