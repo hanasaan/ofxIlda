@@ -335,6 +335,7 @@ namespace ofxIlda {
             points.clear();
             
             ofPoint globalEndPoint;
+            int activePolyCount = 0;
             for(int i=0; i<processedPolys.size(); i++) {
                 ofPolyline &poly = processedPolys[i];
                 ofFloatColor &pcolor = processedPolys[i].color;
@@ -370,20 +371,23 @@ namespace ofxIlda {
                     }
                     
                     globalEndPoint = endPoint;
+                    activePolyCount++;
                 }
             }
             
             // force resize point size
-            if (points.size() > polyProcessor.params.targetPointCount) {
-                if (points.size() - polyProcessor.params.targetPointCount < (params.output.blankCount - 1)) {
-                    points.resize(polyProcessor.params.targetPointCount);
-                } else {
-                    // ToDo
-                }
-            } else if (points.size() < polyProcessor.params.targetPointCount) {
-                int diff = polyProcessor.params.targetPointCount - points.size();
-                for(int n=0; n<diff; n++) {
-                    points.push_back( Point(globalEndPoint, ofFloatColor(0, 0, 0, 0) ));
+            if (polyProcessor.params.targetPointCount > 0) {
+                if (points.size() > polyProcessor.params.targetPointCount) {
+                    if (points.size() - polyProcessor.params.targetPointCount < (params.output.blankCount - 1)) {
+                        points.resize(polyProcessor.params.targetPointCount);
+                    } else {
+                        // ToDo
+                    }
+                } else if (points.size() < polyProcessor.params.targetPointCount && activePolyCount > 0) {
+                    int diff = polyProcessor.params.targetPointCount - points.size();
+                    for(int n=0; n<diff; n++) {
+                        points.push_back( Point(globalEndPoint, ofFloatColor(0, 0, 0, 0) ));
+                    }
                 }
             }
         }
