@@ -117,15 +117,22 @@ namespace ofxIlda {
         //--------------------------------------------------------------
         void update() {
             int polyCount = 0;
+            int pointCount = 0;
             for (int i=0; i<origPolys.size(); ++i) {
                 if (origPolys[i].size() > 0) {
                     polyCount++;
+                    pointCount += origPolys[i].size();
                 }
             }
             polyProcessor.params.effectiveTargetPointCount
             = max<int>(2, polyProcessor.params.targetPointCount - 2 * (params.output.endCount + params.output.blankCount) * polyCount);
-            
-            polyProcessor.update(origPolys, processedPolys);
+
+            // skip polyProcessor::update when point count is exactly expected.
+            if (polyProcessor.params.effectiveTargetPointCount != pointCount) {
+                polyProcessor.update(origPolys, processedPolys);
+            } else {
+                processedPolys = origPolys;
+            }
 			
             // get stats
             stats.pointCountOrig = 0;
