@@ -69,7 +69,7 @@ namespace ofxIlda {
             
             params.output.color.set(1, 1, 1, 1);
             params.output.blankCount = 30;
-            params.output.blankStopCount = 5;
+            params.output.blankStopCount = 10;
             params.output.endCount = 30;
             params.output.doCapX = false;
             params.output.doCapY = false;
