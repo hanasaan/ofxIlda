@@ -32,6 +32,7 @@ namespace ofxIlda {
             struct {
                 ofFloatColor color; // color
                 int blankCount;     // how many blank points to send at path ends
+                int blankStopCount;     // how many blank points to send at path ends
                 int endCount;       // how many end repeats to send
                 bool doCapX;        // cap out of range on x (otherwise wraps around)
                 bool doCapY;        // cap out of range on y (otherwise wraps around)
@@ -68,6 +69,7 @@ namespace ofxIlda {
             
             params.output.color.set(1, 1, 1, 1);
             params.output.blankCount = 30;
+            params.output.blankStopCount = 5;
             params.output.endCount = 30;
             params.output.doCapX = false;
             params.output.doCapY = false;
@@ -342,19 +344,33 @@ namespace ofxIlda {
             points.clear();
             
             ofPoint globalEndPoint;
+            ofPoint prevEndPoint;
+            ofPoint nextStartPoint;
             int activePolyCount = 0;
             for(int i=0; i<processedPolys.size(); i++) {
                 ofPolyline &poly = processedPolys[i];
                 ofFloatColor &pcolor = processedPolys[i].color;
                 
+                if (i==0) {
+                    prevEndPoint = poly.getVertices().front();
+                }
+                
                 if(poly.size() > 0) {
                     
                     ofPoint startPoint = transformPoint(poly.getVertices().front());
                     ofPoint endPoint = transformPoint(poly.getVertices().back());
+                    if (i==processedPolys.size()-1) {
+                        nextStartPoint = endPoint;
+                    } else {
+                        nextStartPoint = processedPolys[i+1].getVertices().front();
+                    }
                     
                     // blanking at start
                     for(int n=0; n<params.output.blankCount; n++) {
-                        points.push_back( Point(startPoint, ofFloatColor(0, 0, 0, 0)));
+                        ofPoint p;
+                        p.x = ofMap(n, 0, params.output.blankCount - params.output.blankStopCount, prevEndPoint.x, startPoint.x, true);
+                        p.y = ofMap(n, 0, params.output.blankCount - params.output.blankStopCount, prevEndPoint.y, startPoint.y, true);
+                        points.push_back( Point(p, ofFloatColor(0, 0, 0, 0)));
                     }
                     
                     // repeat at start
@@ -374,10 +390,15 @@ namespace ofxIlda {
                     
                     // blanking at end
                     for(int n=0; n<params.output.blankCount; n++) {
-                        points.push_back( Point(endPoint, ofFloatColor(0, 0, 0, 0) ));
+                        ofPoint p;
+                        p.x = ofMap(n, params.output.blankStopCount, params.output.blankCount, endPoint.x, nextStartPoint.x, true);
+                        p.y = ofMap(n, params.output.blankStopCount, params.output.blankCount, endPoint.y, nextStartPoint.y, true);
+                        points.push_back( Point(p, ofFloatColor(0, 0, 0, 0)));
                     }
                     
                     globalEndPoint = endPoint;
+                    prevEndPoint = endPoint;
+                    
                     activePolyCount++;
                 }
             }
