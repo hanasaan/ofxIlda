@@ -347,16 +347,16 @@ namespace ofxIlda {
             ofPoint prevEndPoint;
             ofPoint nextStartPoint;
             int activePolyCount = 0;
+            bool bPrevEndSet = false;
             for(int i=0; i<processedPolys.size(); i++) {
                 ofPolyline &poly = processedPolys[i];
                 ofFloatColor &pcolor = processedPolys[i].color;
-                
-                if (i==0) {
-                    prevEndPoint = poly.getVertices().front();
-                }
-                
+
                 if(poly.size() > 0) {
-                    
+                    if (!bPrevEndSet) {
+                        prevEndPoint = poly.getVertices().front();
+                        bPrevEndSet = true;
+                    }
                     ofPoint startPoint = transformPoint(poly.getVertices().front());
                     ofPoint endPoint = transformPoint(poly.getVertices().back());
                     if (i==processedPolys.size()-1) {
