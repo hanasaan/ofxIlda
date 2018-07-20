@@ -362,7 +362,11 @@ namespace ofxIlda {
                     if (i==processedPolys.size()-1) {
                         nextStartPoint = endPoint;
                     } else {
-                        nextStartPoint = processedPolys[i+1].getVertices().front();
+                        if (processedPolys[i+1].getVertices().empty()) {
+                            nextStartPoint = endPoint;
+                        } else {
+                            nextStartPoint = processedPolys[i+1].getVertices().front();
+                        }
                     }
                     
                     // blanking at start
