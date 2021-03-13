@@ -368,6 +368,7 @@ namespace ofxIlda {
                             nextStartPoint = processedPolys[i+1].getVertices().front();
                         }
                     }
+                    ofPoint blankEndPoint = (nextStartPoint + endPoint) * 0.5;
                     
                     // blanking at start
                     for(int n=0; n<params.output.blankCount; n++) {
@@ -395,14 +396,14 @@ namespace ofxIlda {
                     // blanking at end
                     for(int n=0; n<params.output.blankCount; n++) {
                         ofPoint p;
-                        p.x = ofMap(n, params.output.blankStopCount, params.output.blankCount, endPoint.x, nextStartPoint.x, true);
-                        p.y = ofMap(n, params.output.blankStopCount, params.output.blankCount, endPoint.y, nextStartPoint.y, true);
+                        p.x = ofMap(n, params.output.blankStopCount, params.output.blankCount, endPoint.x, blankEndPoint.x, true);
+                        p.y = ofMap(n, params.output.blankStopCount, params.output.blankCount, endPoint.y, blankEndPoint.y, true);
                         points.push_back( Point(p, ofFloatColor(0, 0, 0, 0)));
                     }
                     
-                    globalEndPoint = endPoint;
-                    prevEndPoint = endPoint;
-                    
+                    globalEndPoint = blankEndPoint;
+                    prevEndPoint = blankEndPoint;
+
                     activePolyCount++;
                 }
             }
